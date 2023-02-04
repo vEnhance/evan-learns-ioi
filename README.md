@@ -8,3 +8,6 @@ See also:
 
 - [C++ template](https://github.com/vEnhance/dotfiles/blob/main/ioi-template.cpp)
 - [Grader script](https://github.com/vEnhance/dotfiles/blob/main/py-scripts/stomp.py)
+
+See also
+[Twitch Solves ISL index](https://web.evanchen.cc/videos.html).
