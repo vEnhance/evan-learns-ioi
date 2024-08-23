@@ -31,7 +31,7 @@ where
     dbg!(value);
 }
 
-fn get_two_coloring(graph: &Vec<Vec<bool>>, n: usize) -> Option<[Option<bool>; MAX]> {
+fn get_two_coloring(graph: &Vec<Vec<usize>>) -> Option<[Option<bool>; MAX]> {
     let mut two_coloring = [None; MAX];
     let mut queue: VecDeque<usize> = VecDeque::new();
     queue.push_front(1);
@@ -39,16 +39,14 @@ fn get_two_coloring(graph: &Vec<Vec<bool>>, n: usize) -> Option<[Option<bool>; M
     while !queue.is_empty() {
         let u: usize = queue.pop_front().unwrap();
         let c1: bool = two_coloring[u].unwrap();
-        for v in 1..=n {
-            if graph[u][v] {
-                if let Some(c2) = two_coloring[v] {
-                    if c2 == c1 {
-                        return None;
-                    }
-                } else {
-                    two_coloring[v] = Some(!c1);
-                    queue.push_front(v);
+        for v in &graph[u] {
+            if let Some(c2) = two_coloring[*v] {
+                if c2 == c1 {
+                    return None;
                 }
+            } else {
+                two_coloring[*v] = Some(!c1);
+                queue.push_front(*v);
             }
         }
     }
@@ -64,14 +62,14 @@ fn main() {
     for _test_case_counter in 0..t {
         let n: usize = scan.next();
         let m: usize = scan.next();
-        let mut graph = vec![vec![false; MAX]; MAX];
+        let mut graph_edges: Vec<Vec<usize>> = vec![Vec::new(); MAX];
         for _edge_counter in 0..m {
             let u = scan.next::<usize>();
             let v = scan.next::<usize>();
-            graph[u][v] = true;
-            graph[v][u] = true;
+            graph_edges[u].push(v);
+            graph_edges[v].push(u);
         }
-        let coloring = get_two_coloring(&graph, n);
+        let coloring = get_two_coloring(&graph_edges);
         debug(n);
 
         if let Some(coloring) = coloring {
