@@ -6,7 +6,7 @@ problems on Twitch Solves ISL.
 
 See also:
 
-- [C++ template](https://github.com/vEnhance/dotfiles/blob/main/ioi-template.cpp)
+- [Templates](https://github.com/vEnhance/dotfiles/blob/main/cp-templates)
 - [Grader script](https://github.com/vEnhance/dotfiles/blob/main/py-scripts/stomp.py)
 
 See also
