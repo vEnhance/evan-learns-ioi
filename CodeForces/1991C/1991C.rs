@@ -24,11 +24,13 @@ impl Scanner {
 }
 
 #[allow(dead_code)]
-fn join<T>(v: &Vec<T>) -> String
+fn join<T, U>(v: U) -> String
 where
+    U: AsRef<[T]>,
     T: std::string::ToString,
 {
-    v.iter()
+    v.as_ref()
+        .iter()
         .map(|elm| elm.to_string())
         .collect::<Vec<String>>()
         .join(" ")
