@@ -1,0 +1,9 @@
+[package]
+name = "stomp_1991d"
+
+[lib]
+path = "1991D.rs"
+
+[features]
+default = ["debug"]
+debug = []
