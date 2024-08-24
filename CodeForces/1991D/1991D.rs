@@ -4,7 +4,7 @@
 
 #[allow(unused_imports)]
 use std::cmp::{max, min};
-use std::io::{stdin, stdout, BufWriter, Write};
+use std::io::{stdin, stdout, BufWriter, Stdout, Write};
 
 #[derive(Default)]
 struct Scanner {
@@ -69,17 +69,21 @@ fn main() {
     let out = &mut BufWriter::new(stdout());
 
     let t: i64 = scan.next();
-    #[allow(unused_labels)]
-    'test_case_loop: for _test_case_number in 0..t {
-        let n: usize = scan.next();
-
-        if n <= 5 {
-            writeln!(out, "{}", SMALL_CASES[n - 1]).ok();
-            writeln!(out, "{}", join(&SMALL_CASES[0..n])).ok();
-        } else {
-            writeln!(out, "{}", 4).ok();
-            let ans: Vec<usize> = (0..n).map(|x| (x % 4) + 1).collect();
-            writeln!(out, "{}", join(&ans)).ok();
-        }
+    for test_case_number in 0..t {
+        solve(&mut scan, out).expect(&format!("Test case {} failed", test_case_number));
     }
+}
+
+fn solve(scan: &mut Scanner, out: &mut BufWriter<Stdout>) -> Result<(), ()> {
+    let n: usize = scan.next();
+
+    if n <= 5 {
+        writeln!(out, "{}", SMALL_CASES[n - 1]).ok();
+        writeln!(out, "{}", join(&SMALL_CASES[0..n])).ok();
+    } else {
+        writeln!(out, "{}", 4).ok();
+        let ans: Vec<usize> = (0..n).map(|x| (x % 4) + 1).collect();
+        writeln!(out, "{}", join(&ans)).ok();
+    }
+    Ok(())
 }

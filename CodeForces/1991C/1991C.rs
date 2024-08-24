@@ -4,7 +4,7 @@
 
 #[allow(unused_imports)]
 use std::cmp::{max, min};
-use std::io::{stdin, stdout, BufWriter, Write};
+use std::io::{stdin, stdout, BufWriter, Stdout, Write};
 
 #[derive(Default)]
 struct Scanner {
@@ -67,38 +67,41 @@ fn main() {
     let out = &mut BufWriter::new(stdout());
 
     let t: i64 = scan.next();
-    #[allow(unused_labels)]
-    'test_case_loop: for _test_case_number in 0..t {
-        let n: usize = scan.next();
-        let mut a: Vec<i64> = (0..n).map(|_| scan.next()).collect();
-        let mut m: i64 = a[0];
-        if n == 1 {
-            writeln!(out, "{}", 1).ok();
-            writeln!(out, "{}", a[0]).ok();
-            continue 'test_case_loop;
-        }
-        for i in 1..n {
-            if a[i] % 2 != a[0] % 2 {
-                writeln!(out, "{}", -1).ok();
-                continue 'test_case_loop;
-            }
-            m = max(a[i], m);
-        }
-
-        let mut ans: Vec<i64> = Vec::new();
-        let mut k = 0;
-        while m > 0 {
-            let offset = (m + 1) / 2;
-            ans.push(offset);
-            m = 0;
-            for ai in a.iter_mut() {
-                *ai = (*ai - offset).abs();
-                m = max(*ai, m);
-            }
-            k += 1;
-            assert!(k <= 40);
-        }
-        writeln!(out, "{}", k).ok();
-        writeln!(out, "{}", join(&ans)).ok();
+    for _test_case_number in 0..t {
+        solve(&mut scan, out);
     }
+}
+
+fn solve(scan: &mut Scanner, out: &mut BufWriter<Stdout>) {
+    let n: usize = scan.next();
+    let mut a: Vec<i64> = (0..n).map(|_| scan.next()).collect();
+    let mut m: i64 = a[0];
+    if n == 1 {
+        writeln!(out, "{}", 1).ok();
+        writeln!(out, "{}", a[0]).ok();
+        return;
+    }
+    for i in 1..n {
+        if a[i] % 2 != a[0] % 2 {
+            writeln!(out, "{}", -1).ok();
+            return;
+        }
+        m = max(a[i], m);
+    }
+
+    let mut ans: Vec<i64> = Vec::new();
+    let mut k = 0;
+    while m > 0 {
+        let offset = (m + 1) / 2;
+        ans.push(offset);
+        m = 0;
+        for ai in a.iter_mut() {
+            *ai = (*ai - offset).abs();
+            m = max(*ai, m);
+        }
+        k += 1;
+        assert!(k <= 40);
+    }
+    writeln!(out, "{}", k).ok();
+    writeln!(out, "{}", join(&ans)).ok();
 }
