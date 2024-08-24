@@ -1,10 +1,10 @@
-// Template based on https://codeforces.com/blog/entry/67391
+// {{{ vEnhance's Rust competitive programming template
+// I/O scanner from https://codeforces.com/blog/entry/67391
+// vim: fdm=marker foldlevel=0
+
 #[allow(unused_imports)]
 use std::cmp::{max, min};
-use std::collections::VecDeque;
-use std::io::{stdin, stdout, BufWriter, Write};
-
-const MAX: usize = 10009;
+use std::io::{stdin, stdout, BufWriter, Stdout, Write};
 
 #[derive(Default)]
 struct Scanner {
@@ -23,13 +23,46 @@ impl Scanner {
     }
 }
 
-fn debug<T>(value: T)
+#[allow(dead_code)]
+fn join<T, U>(v: U) -> String
 where
-    T: std::fmt::Debug, // T must implement the Debug trait
+    U: AsRef<[T]>,
+    T: std::string::ToString,
 {
-    #[cfg(feature = "debug")]
-    dbg!(value);
+    v.as_ref()
+        .iter()
+        .map(|elm| elm.to_string())
+        .collect::<Vec<String>>()
+        .join(" ")
 }
+
+// Copy of dbg! macro, but only when stomp is used and the flag debug is passed
+// So we don't waste time printing to stderr when submitting to online judge
+#[macro_export]
+macro_rules! debug {
+    () => {
+        #[cfg(feature = "debug")]
+        std::eprintln!("[{}:{}:{}]", std::file!(), std::line!(), std::column!())
+    };
+    ($val:expr $(,)?) => {
+        #[cfg(feature = "debug")]
+        match $val {
+            tmp => {
+                std::eprintln!("[{}:{}:{}] {} = {:#?}",
+                    std::file!(), std::line!(), std::column!(), std::stringify!($val), &tmp);
+                tmp
+            }
+        }
+    };
+    ($($val:expr),+ $(,)?) => {
+        #[cfg(feature = "debug")]
+        ($(std::dbg!($val)),+,)
+    };
+}
+/* }}} */
+
+const MAX: usize = 10009;
+use std::collections::VecDeque;
 
 fn get_two_coloring(graph: &Vec<Vec<usize>>) -> Option<[Option<bool>; MAX]> {
     let mut two_coloring = [None; MAX];
@@ -58,72 +91,76 @@ fn main() {
     let mut scan = Scanner::default();
     let out = &mut BufWriter::new(stdout());
 
-    let t: i32 = scan.next();
-    for _test_case_counter in 0..t {
-        let n: usize = scan.next();
-        let m: usize = scan.next();
-        let mut graph_edges: Vec<Vec<usize>> = vec![Vec::new(); MAX];
-        for _edge_counter in 0..m {
-            let u = scan.next::<usize>();
-            let v = scan.next::<usize>();
-            graph_edges[u].push(v);
-            graph_edges[v].push(u);
-        }
-        let coloring = get_two_coloring(&graph_edges);
-        debug(n);
+    let t: i64 = scan.next();
+    for _test_case_number in 0..t {
+        solve(&mut scan, out);
+    }
+}
 
-        if let Some(coloring) = coloring {
-            writeln!(out, "{}", "Bob").ok();
-            out.flush().ok();
+fn solve(scan: &mut Scanner, out: &mut BufWriter<Stdout>) {
+    let n: usize = scan.next();
+    let m: usize = scan.next();
+    let mut graph_edges: Vec<Vec<usize>> = vec![Vec::new(); MAX];
+    for _edge_counter in 0..m {
+        let u = scan.next::<usize>();
+        let v = scan.next::<usize>();
+        graph_edges[u].push(v);
+        graph_edges[v].push(u);
+    }
+    let coloring = get_two_coloring(&graph_edges);
+    debug!(n);
 
-            let mut left_vertices: Vec<usize> = Vec::new();
-            let mut right_vertices: Vec<usize> = Vec::new();
-            {
-                for v in 1..=n {
-                    if coloring[v].unwrap() {
-                        left_vertices.push(v);
-                    } else {
-                        right_vertices.push(v);
-                    }
-                }
-            }
+    if let Some(coloring) = coloring {
+        writeln!(out, "{}", "Bob").ok();
+        out.flush().ok();
 
-            for _ in 0..n {
-                let c1: i8 = scan.next();
-                let c2: i8 = scan.next();
-                let w: usize;
-
-                if !left_vertices.is_empty() && (c1 == 1 || c2 == 1) {
-                    w = left_vertices.pop().unwrap();
-                    writeln!(out, "{} 1", w).ok();
-                    out.flush().ok();
-                } else if !right_vertices.is_empty() && (c1 == 3 || c2 == 3) {
-                    w = right_vertices.pop().unwrap();
-                    writeln!(out, "{} 3", w).ok();
-                    out.flush().ok();
+        let mut left_vertices: Vec<usize> = Vec::new();
+        let mut right_vertices: Vec<usize> = Vec::new();
+        {
+            for v in 1..=n {
+                if coloring[v].unwrap() {
+                    left_vertices.push(v);
                 } else {
-                    match left_vertices.pop() {
-                        Some(w) => {
-                            writeln!(out, "{} 2", w).ok();
-                            out.flush().ok();
-                        }
-                        None => {
-                            w = right_vertices.pop().unwrap();
-                            writeln!(out, "{} 2", w).ok();
-                            out.flush().ok();
-                        }
+                    right_vertices.push(v);
+                }
+            }
+        }
+
+        for _ in 0..n {
+            let c1: i8 = scan.next();
+            let c2: i8 = scan.next();
+            let w: usize;
+
+            if !left_vertices.is_empty() && (c1 == 1 || c2 == 1) {
+                w = left_vertices.pop().unwrap();
+                writeln!(out, "{} 1", w).ok();
+                out.flush().ok();
+            } else if !right_vertices.is_empty() && (c1 == 3 || c2 == 3) {
+                w = right_vertices.pop().unwrap();
+                writeln!(out, "{} 3", w).ok();
+                out.flush().ok();
+            } else {
+                match left_vertices.pop() {
+                    Some(w) => {
+                        writeln!(out, "{} 2", w).ok();
+                        out.flush().ok();
+                    }
+                    None => {
+                        w = right_vertices.pop().unwrap();
+                        writeln!(out, "{} 2", w).ok();
+                        out.flush().ok();
                     }
                 }
             }
-        } else {
-            writeln!(out, "{}", "Alice").ok();
+        }
+    } else {
+        writeln!(out, "{}", "Alice").ok();
+        out.flush().ok();
+        for _ in 0..n {
+            writeln!(out, "{}", "1 2").ok();
             out.flush().ok();
-            for _ in 0..n {
-                writeln!(out, "{}", "1 2").ok();
-                out.flush().ok();
-                let _: i32 = scan.next();
-                let _: i32 = scan.next();
-            }
+            let _: i32 = scan.next();
+            let _: i32 = scan.next();
         }
     }
 }
