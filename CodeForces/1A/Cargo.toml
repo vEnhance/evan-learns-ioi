@@ -1,0 +1,9 @@
+[package]
+name = "stomp_1a"
+
+[lib]
+path = "1A.rs"
+
+[features]
+default = ["debug"]
+debug = []
