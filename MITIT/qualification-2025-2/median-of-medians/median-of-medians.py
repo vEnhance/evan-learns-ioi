@@ -1,7 +1,6 @@
 # vEnhance's cp Python template
 
 import argparse
-import itertools
 import sys
 from typing import Any
 
@@ -36,6 +35,8 @@ def binom(n, k):
         return 0
     if k < 0:
         return 0
+    if n < k:
+        return 0
     return (
         factorials[n] * pow(factorials[k] * factorials[n - k], -1, MODULUS)
     ) % MODULUS
@@ -45,6 +46,8 @@ def perm(n, k):
     if n < 0:
         return 0
     if k < 0:
+        return 0
+    if n < k:
         return 0
     return (factorials[n] * pow(factorials[n - k], -1, MODULUS)) % MODULUS
 
@@ -58,93 +61,83 @@ T = int(stream.readline())
 for test_case_number in range(T):
     N, M = [int(_) for _ in stream.readline().split()]
 
-    if N == 3:
-        constraints = []
-        for m in range(M):
-            a, b = [int(_) for _ in stream.readline().split()]
-            constraints.append((a, b))
+    x0, x1, y0, y1, z0, z1 = 0, 0, 0, 0, 0, 0
+    zone = ""
+    median = (3 * N + 1) // 2
+    for m in range(M):
+        a, b = [int(_) for _ in stream.readline().split()]
+        if b < median:
+            if a <= N:
+                x0 += 1
+            elif a <= 2 * N:
+                y0 += 1
+            else:
+                z0 += 1
+        elif b > median:
+            if a <= N:
+                x1 += 1
+            elif a <= 2 * N:
+                y1 += 1
+            else:
+                z1 += 1
+        else:  # b == median
+            if a <= N:
+                zone = "x"
+            elif a <= 2 * N:
+                zone = "y"
+            else:
+                zone = "z"
 
-        count = 0
-        for p in itertools.permutations([1, 2, 3, 4, 5, 6, 7, 8, 9]):
-            if median3([median3(p[0:3]), median3(p[3:6]), median3(p[6:9])]) != 5:
-                continue
-            if all(p[a - 1] == b for (a, b) in constraints):
-                count += 1
+    smalls = (3 * N - 1) // 2 - (x0 + y0 + z0)
+    bigs = (3 * N - 1) // 2 - (x1 + y1 + z1)
+    debug(x0, x1, y0, y1, z0, z1, "|", "N =", N, zone)
 
-        print(count % MODULUS)
+    if zone == "":
+        xcount = (
+            (N - x0 - x1)
+            * binom(N - x0 - x1 - 1, N // 2 - x0)
+            * perm(smalls, N // 2 - x0)
+            * perm(bigs, N // 2 - x1)
+        ) * factorials[2 * N - (y0 + y1 + z0 + z1)]
+        ycount = (
+            (N - y0 - y1)
+            * binom(N - y0 - y1 - 1, N // 2 - y0)
+            * perm(smalls, N // 2 - y0)
+            * perm(bigs, N // 2 - y1)
+        ) * factorials[2 * N - (z0 + z1 + x0 + x1)]
+        zcount = (
+            (N - z0 - z1)
+            * binom(N - z0 - z1 - 1, N // 2 - z0)
+            * perm(smalls, N // 2 - z0)
+            * perm(bigs, N // 2 - z1)
+        ) * factorials[2 * N - (x0 + x1 + y0 + y1)]
+        debug(xcount, ycount, zcount)
+        debug(
+            binom(N - z0 - z1 - 1, N // 2 - z0),
+            perm(smalls, N // 2 - z0),
+            perm(bigs, N // 2 - z1),
+        )
+        answer = xcount + ycount + zcount
 
+    elif zone == "x":
+        answer = (
+            binom(N - x0 - x1 - 1, N // 2 - x0)
+            * perm(smalls, N // 2 - x0)
+            * perm(bigs, N // 2 - x1)
+        ) * factorials[2 * N - (y0 + y1 + z0 + z1)]
+    elif zone == "y":
+        answer = (
+            binom(N - y0 - y1 - 1, N // 2 - y0)
+            * perm(smalls, N // 2 - y0)
+            * perm(bigs, N // 2 - y1)
+        ) * factorials[2 * N - (z0 + z1 + x0 + x1)]
+    elif zone == "z":
+        answer = (
+            binom(N - z0 - z1 - 1, N // 2 - z0)
+            * perm(smalls, N // 2 - z0)
+            * perm(bigs, N // 2 - z1)
+        ) * factorials[2 * N - (x0 + x1 + y0 + y1)]
     else:
-        x0, x1, y0, y1, z0, z1 = 0, 0, 0, 0, 0, 0
-        zone = ""
-        median = (3 * N + 1) // 2
-        for m in range(M):
-            a, b = [int(_) for _ in stream.readline().split()]
-            if b < median:
-                if a <= N:
-                    x0 += 1
-                elif a <= 2 * N:
-                    y0 += 1
-                else:
-                    z0 += 1
-            elif b > median:
-                if a <= N:
-                    x1 += 1
-                elif a <= 2 * N:
-                    y1 += 1
-                else:
-                    z1 += 1
-            else:  # b == median
-                if a <= N:
-                    zone = "x"
-                elif a <= 2 * N:
-                    zone = "y"
-                else:
-                    zone = "z"
+        raise Exception
 
-        smalls = (3 * N - 1) // 2 - (x0 + y0 + z0)
-        bigs = (3 * N - 1) // 2 - (x1 + y1 + z1)
-        # debug(x0, x1, y0, y1, z0, z1, "|", "N =", N, zone)
-
-        if zone == "":
-            xcount = (
-                (N - x0 - x1)
-                * binom(N - x0 - x1 - 1, N // 2 - x0)
-                * perm(smalls, N // 2 - x0)
-                * perm(bigs, N // 2 - x1)
-            ) * factorials[2 * N - (y0 + y1 + z0 + z1)]
-            ycount = (
-                (N - y0 - y1)
-                * binom(N - y0 - y1 - 1, N // 2 - y0)
-                * perm(smalls, N // 2 - y0)
-                * perm(bigs, N // 2 - y1)
-            ) * factorials[2 * N - (z0 + z1 + x0 + x1)]
-            zcount = (
-                (N - z0 - z1)
-                * binom(N - z0 - z1 - 1, N // 2 - z0)
-                * perm(smalls, N // 2 - z0)
-                * perm(bigs, N // 2 - z1)
-            ) * factorials[2 * N - (x0 + x1 + y0 + y1)]
-            answer = xcount + ycount + zcount
-
-        elif zone == "x":
-            answer = (
-                binom(N - x0 - x1 - 1, N // 2 - x0)
-                * perm(smalls, N // 2 - x0)
-                * perm(bigs, N // 2 - x1)
-            ) * factorials[2 * N - (y0 + y1 + z0 + z1)]
-        elif zone == "y":
-            answer = (
-                binom(N - y0 - y1 - 1, N // 2 - y0)
-                * perm(smalls, N // 2 - y0)
-                * perm(bigs, N // 2 - y1)
-            ) * factorials[2 * N - (z0 + z1 + x0 + x1)]
-        elif zone == "z":
-            answer = (
-                binom(N - z0 - z1 - 1, N // 2 - z0)
-                * perm(smalls, N // 2 - z0)
-                * perm(bigs, N // 2 - z1)
-            ) * factorials[2 * N - (x0 + x1 + y0 + y1)]
-        else:
-            raise Exception
-
-        print(answer % MODULUS)
+    print(answer % MODULUS)
