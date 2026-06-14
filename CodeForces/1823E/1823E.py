@@ -1,6 +1,6 @@
 import sys
 
-n, l, r = [int(_) for _ in sys.stdin.readline().split(" ")]
+n, l, r = [int(_) for _ in sys.stdin.readline().split(" ")]  # noqa: E741
 
 
 def nimber_for_line(s: int):
