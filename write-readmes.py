@@ -8,12 +8,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-o", "--overwrite", action="store_true")
 opts = parser.parse_args()
 
-tsv_path = Path.home() / "ProGamer/Writeups/data.tsv"
+tsv_path = Path.home() / "Sync/Websites/web.evanchen.cc/data/twitch/problems.csv"
 assert tsv_path.exists()
 
 data = []
 with open(tsv_path) as f:
-    reader = csv.DictReader(f, delimiter="\t")
+    reader = csv.DictReader(f)
     for row in reader:
         n = row["N"]
         key: str = row["Source"]
